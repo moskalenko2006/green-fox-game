@@ -62,7 +62,9 @@ function sendResult(win, timeSpent = null) {
         console.log('No Telegram, result:', win);
         return;
     }
-    const finalTime = timeSpent !== null ? timeSpent : (Date.now() - gameStartTime) / 1000;
+    const finalTime = timeSpent !== null 
+    ? timeSpent 
+    : (gameStartTime ? (Date.now() - gameStartTime) / 1000 : 0);
     const data = {
         reached_den: win,
         time: finalTime,
@@ -80,7 +82,7 @@ function canMove(x, y) {
 }
 
 function moveFox(dx, dy) {
-    if (!running || !gameActive || gameCompleted) return;
+    if (!running || !gameActive || gameCompleted || attemptsLeft <= 0) return;
     let nx = fox.x + dx;
     let ny = fox.y + dy;
     if (canMove(nx, ny)) {
@@ -158,6 +160,8 @@ function endGame(win) {
     const timeSpent = (Date.now() - gameStartTime) / 1000;
 
     if (win) {
+        stats.wins++;
+        stats.totalTime += timeSpent;
         gameCompleted = true; // Блокируем игру навсегда
         sendResult(true, timeSpent);
         document.getElementById('msg').innerHTML = '🎉 ПОБЕДА! Результат отправлен!';
@@ -184,6 +188,11 @@ function endGame(win) {
         }
     }
 }
+
+let stats = {
+    stats.losses++;
+    stats.totalTime += timeSpent;
+};
 
 // ========== СБРОС ИГРЫ ==========
 function resetGame() {
