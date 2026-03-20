@@ -47,6 +47,7 @@ let huntersKilled = 0;
 let attemptsLeft = 3;
 let gameStartTime = null;
 let gameActive = true;
+let gameCompleted = false; // Блокировка после победы
 
 // Обновление UI
 function updateUI() {
@@ -57,14 +58,19 @@ function updateUI() {
 
 // Отправка результата в бота
 function sendResult(win, timeSpent = null) {
-    if (!tg) return;
+    if (!tg) {
+        console.log('No Telegram, result:', win);
+        return;
+    }
     const finalTime = timeSpent !== null ? timeSpent : (Date.now() - gameStartTime) / 1000;
-    tg.sendData(JSON.stringify({
+    const data = {
         reached_den: win,
         time: finalTime,
         hunters_killed: huntersKilled,
         score: score
-    }));
+    };
+    console.log('Sending result:', data);
+    tg.sendData(JSON.stringify(data));
 }
 
 // ========== ЛОГИКА ДВИЖЕНИЯ ==========
@@ -74,7 +80,7 @@ function canMove(x, y) {
 }
 
 function moveFox(dx, dy) {
-    if (!running || !gameActive) return;
+    if (!running || !gameActive || gameCompleted) return;
     let nx = fox.x + dx;
     let ny = fox.y + dy;
     if (canMove(nx, ny)) {
@@ -146,14 +152,18 @@ function checkWin() {
 
 // ========== ЗАВЕРШЕНИЕ ИГРЫ ==========
 function endGame(win) {
-    if (!gameActive) return;
+    if (!gameActive || gameCompleted) return;
     gameActive = false;
     running = false;
     const timeSpent = (Date.now() - gameStartTime) / 1000;
 
     if (win) {
+        gameCompleted = true; // Блокируем игру навсегда
         sendResult(true, timeSpent);
         document.getElementById('msg').innerHTML = '🎉 ПОБЕДА! Результат отправлен!';
+        // Убираем кнопку reset
+        const resetBtn = document.getElementById('reset');
+        if (resetBtn) resetBtn.style.display = 'none';
     } else {
         attemptsLeft--;
         updateUI();
@@ -177,7 +187,11 @@ function endGame(win) {
 
 // ========== СБРОС ИГРЫ ==========
 function resetGame() {
-    if (attemptsLeft <= 0 && !gameActive) {
+    if (gameCompleted) {
+        document.getElementById('msg').innerHTML = '🏆 Ты уже победил! Игра завершена.';
+        return;
+    }
+    if (attemptsLeft <= 0) {
         document.getElementById('msg').innerHTML = '❌ Попытки закончились!';
         return;
     }
@@ -246,7 +260,11 @@ document.getElementById('down').onclick = () => moveFox(0, 1);
 document.getElementById('left').onclick = () => moveFox(-1, 0);
 document.getElementById('right').onclick = () => moveFox(1, 0);
 document.getElementById('reset').onclick = () => {
-    if (attemptsLeft > 0 || gameActive === false) {
+    if (gameCompleted) {
+        document.getElementById('msg').innerHTML = '🏆 Ты уже победил!';
+        return;
+    }
+    if (attemptsLeft > 0) {
         resetGame();
         gameStartTime = Date.now();
     } else {
