@@ -44,8 +44,6 @@ let hunters = [
 let score = 0;
 let running = true;
 let huntersKilled = 0;
-
-// ========== СИСТЕМА ПОПЫТОК ==========
 let attemptsLeft = 3;
 let gameStartTime = null;
 let gameActive = true;
@@ -215,17 +213,14 @@ function draw() {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    // Нора (победа)
     ctx.fillStyle = "#0f0";
     ctx.fillRect(17 * CELL, 1 * CELL, CELL, CELL);
     ctx.fillStyle = "#000";
     ctx.fillText("🕳️", 17 * CELL + CELL / 2, 1 * CELL + CELL / 2);
 
-    // Лис
     ctx.fillStyle = "#0f0";
     ctx.fillText("🦊", fox.x * CELL + CELL / 2, fox.y * CELL + CELL / 2);
 
-    // Охотники
     hunters.forEach(h => {
         ctx.fillStyle = "#f00";
         ctx.fillText("🔴", h.x * CELL + CELL / 2, h.y * CELL + CELL / 2);
