@@ -259,17 +259,6 @@ document.getElementById('up').onclick = () => moveFox(0, -1);
 document.getElementById('down').onclick = () => moveFox(0, 1);
 document.getElementById('left').onclick = () => moveFox(-1, 0);
 document.getElementById('right').onclick = () => moveFox(1, 0);
-document.getElementById('reset').onclick = () => {
-    if (gameCompleted) {
-        document.getElementById('msg').innerHTML = '🏆 Ты уже победил!';
-        return;
-    }
-    if (attemptsLeft > 0) {
-        resetGame();
-        gameStartTime = Date.now();
-    } else {
-        document.getElementById('msg').innerHTML = '❌ Попытки кончились!';
-    }
 };
 
 // ========== СВАЙП ДЛЯ ТЕЛЕФОНА ==========
